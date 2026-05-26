@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Feedback Client</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f0f4f8;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .card {
+      background: white;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 480px;
+    }
+    h2 { color: #0078d4; margin-bottom: 24px; font-size: 24px; }
+    label { display: block; margin-bottom: 4px; font-weight: 600; color: #333; }
+    input, textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 14px;
+      margin-bottom: 16px;
+    }
+    textarea { resize: vertical; }
+    button {
+      width: 100%;
+      background: #0078d4;
+      color: white;
+      padding: 14px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    button:hover { background: #005fa3; }
+    #result {
+      margin-top: 16px;
+      padding: 12px;
+      border-radius: 8px;
+      display: none;
+      font-weight: 600;
+    }
+    .success { background: #e6f4ea; color: #2e7d32; }
+    .error { background: #fdecea; color: #c62828; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>💬 Laissez votre feedback</h2>
+    <label for="email">Votre email</label>
+    <input type="email" id="email" placeholder="exemple@email.com" required />
+    <label for="message">Votre message</label>
+    <textarea id="message" rows="5" placeholder="Écrivez votre commentaire ici..." required></textarea>
+    <button onclick="sendFeedback()">Envoyer le feedback</button>
+    <div id="result"></div>
+  </div>
+
+  <script>
+    async function sendFeedback() {
+      const email = document.getElementById("email").value.trim();
+      const message = document.getElementById("message").value.trim();
+      const resultDiv = document.getElementById("result");
+
+      if (!email || !message) {
+        resultDiv.textContent = "⚠️ Veuillez remplir tous les champs.";
+        resultDiv.className = "error";
+        resultDiv.style.display = "block";
+        return;
+      }
+
+      try {
+        const res = await fetch("/api/feedback", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, message })
+        });
+        const data = await res.json();
+        resultDiv.textContent = "✅ " + data.msg;
+        resultDiv.className = "success";
+      } catch (err) {
+        resultDiv.textContent = "❌ Erreur lors de l'envoi.";
+        resultDiv.className = "error";
+      }
+      resultDiv.style.display = "block";
+    }
+  </script>
+</body>
+</html>
